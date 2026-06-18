@@ -86,15 +86,4 @@ curl -L -o install_windows.bat https://cdn.gh-proxy.org/https://raw.githubuserco
 
 ---
 
-## 📖 更多信息
-
-- **项目主页**：[GitHub - is928joe-jpg/sing-box-with-nanoswift](https://github.com/is928joe-jpg/sing-box-with-nanoswift)
-- **问题反馈**：[Issues](https://github.com/is928joe-jpg/sing-box-with-nanoswift/issues)
-
----
-
-<p align="center">
-  <sub>✨ 享受极致轻量、全图形化的代理管理体验 ✨</sub>
-</p>
-
 [![GitHub Star History Chart](https://api.star-history.com/svg?repos=is928joe-jpg/sing-box-with-nanoswift&type=Date)](https://star-history.com/#is928joe-jpg/sing-box-with-nanoswift&Date)
