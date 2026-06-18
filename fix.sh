@@ -1,3 +1,11 @@
+cd ~/sing-box/dist
+# 或者进入您的 sing-box-with-nanoswift 仓库目录
+
+# 备份旧文件
+cp install.sh install.sh.bak
+
+# 创建新的 install.sh（使用修复后的版本）
+cat > install.sh << 'EOF'
 #!/usr/bin/env bash
 
 set -e # 出错时立即退出
@@ -23,10 +31,12 @@ detect_target() {
     esac
 }
 
+# 智能环境兼容：如果当前是 root 用户，或者系统根本没有 sudo 命令，则让 sudo 关键字失效（变成直接执行）
 if [ "$(id -u)" -eq 0 ] || ! command -v sudo &> /dev/null; then
     sudo() { "$@"; }
 fi
 
+# 配置安装目录与自启动服务
 setup_service() {
     local binary_path="$1"
     
@@ -54,6 +64,7 @@ setup_service() {
 
     echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
     
+    # === 例外处理：检测是否为 OpenWrt 环境 ===
     if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
         echo "   检测到系统为 [OpenWrt / ImmortalWrt] 正在配置 UCI 服务..."
         cat <<EOF | sudo tee /etc/config/sing-box > /dev/null
@@ -110,6 +121,7 @@ EOF
         sudo /etc/init.d/sing-box start
         echo "✅ OpenWrt UCI/Procd 自启动服务已成功激活！"
 
+    # === 常规系统：检测 systemd (Ubuntu, Debian 等) ===
     elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
         echo "   检测到系统使用 [systemd] (Ubuntu/Debian)..."
         
@@ -140,6 +152,7 @@ EOF
         sudo systemctl start sing-box
         echo "✅ systemd 自启动服务已成功创建并启动！"
 
+    # === 常规系统：检测 OpenRC (Alpine Linux) ===
     elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
         echo "   检测到系统使用 [OpenRC] (Alpine)..."
         
@@ -170,6 +183,7 @@ EOF
         echo "⚠️ 未能识别兼容的初始化系统，跳过自启动创建。"
     fi
 
+    # 5. 提示控制面板访问 URL
     echo "--------------------------------------------------"
     echo "🎉 🎉 🎉 安装部署成功 🎉 🎉 🎉"
     echo "🔗 控制面板访问 URL: http://127.0.0.1:9090/ui"
@@ -182,6 +196,8 @@ EOF
     echo "--------------------------------------------------"
 }
 
+# ==================== 主流程 ====================
+
 platform=$(detect_target)
 if [ "$platform" = "unsupported" ] || [ -z "$platform" ]; then
     echo "❌ 错误: 未知或不受支持的系统平台架构。"
@@ -189,6 +205,7 @@ if [ "$platform" = "unsupported" ] || [ -z "$platform" ]; then
 fi
 echo "   已检测到平台: $platform"
 
+# 1. 交互选择加速节点（使用 Heredoc 结构规避一切字符冲突）
 cat << 'EOF'
 ==================================================
 🚀 欢迎使用 sing-box 自动化安装脚本
@@ -209,9 +226,11 @@ case "$PROXY_CHOICE" in
     *) PROXY_PREFIX="https://v4.gh-proxy.org/" ;;
 esac
 
+# 创建日期目录
 DATE_DIR="dist/$(date +%Y-%m-%d)"
 mkdir -p "$DATE_DIR"
 
+# 2. 构建下载路径
 RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-18"
 BINARY_NAME="sing-box-${platform}"
 SHA_NAME="${BINARY_NAME}.sha256"
@@ -219,6 +238,7 @@ SHA_NAME="${BINARY_NAME}.sha256"
 FINAL_BIN_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${BINARY_NAME}"
 FINAL_SHA_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${SHA_NAME}"
 
+# 3. 下载到日期目录
 echo "📥 正在从网络获取二进制文件到 ${DATE_DIR}/ ..."
 if ! curl -L -o "${DATE_DIR}/${BINARY_NAME}" "$FINAL_BIN_URL"; then
     echo "❌ 错误: 下载二进制文件失败。"
@@ -231,6 +251,7 @@ if ! curl -L -o "${DATE_DIR}/${SHA_NAME}" "$FINAL_SHA_URL"; then
     exit 1
 fi
 
+# 4. 进入日期目录进行校验
 cd "$DATE_DIR"
 echo "🔍 正在进行 SHA256 安全校验..."
 if command -v sha256sum &> /dev/null; then
@@ -242,5 +263,12 @@ else
     exit 1
 fi
 
+# 5. 返回到脚本根目录进行安装
 cd - > /dev/null
 setup_service "${DATE_DIR}/${BINARY_NAME}"
+EOF
+
+# 提交并推送
+git add install.sh
+git commit -m "fix: 修复 SHA256 校验路径问题，使用日期子目录"
+git push origin main

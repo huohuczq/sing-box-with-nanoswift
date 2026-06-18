@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+
+set -e # 出错时立即退出
+
+detect_target() {
+    local arch os
+    arch="$(uname -m)"
+    os="$(uname -s)"
+
+    case "$arch" in
+        x86_64|amd64)
+            [[ "$os" == "Darwin" ]] && echo "darwin-amd64" || echo "linux-amd64"
+            ;;
+        aarch64|arm64)
+            [[ "$os" == "Darwin" ]] && echo "darwin-arm64" || echo "linux-arm64"
+            ;;
+        armv7l|armv7*) echo "linux-arm" ;;
+        armv6l|armv6*) echo "linux-armv6" ;;
+        mips)          echo "linux-mips" ;;
+        mipsel|mipsle) echo "linux-mipsle" ;;
+        riscv64)       echo "linux-riscv64" ;;
+        *)             echo "unsupported"; return 1 ;;
+    esac
+}
+
+# 智能环境兼容：如果当前是 root 用户，或者系统根本没有 sudo 命令，则让 sudo 关键字失效（变成直接执行）
+if [ "$(id -u)" -eq 0 ] || ! command -v sudo &> /dev/null; then
+    sudo() { "$@"; }
+fi
+
+# 配置安装目录与自启动服务
+setup_service() {
+    local binary_path="$1"
+    
+    while true; do
+        read -p "📝 请输入 sing-box 的安装目录 (例如: /opt/sing-box): " INSTALL_DIR
+        
+        if [ -z "$INSTALL_DIR" ]; then
+            INSTALL_DIR="/opt/sing-box"
+            echo "💡 检测到输入为空，已自动为你创建默认目录: $INSTALL_DIR"
+            break
+        fi
+        if [ -n "$INSTALL_DIR" ]; then
+            break
+        fi
+    done
+
+    INSTALL_DIR="${INSTALL_DIR%/}"
+
+    echo "📂 正在创建必要的系统目录: $INSTALL_DIR/run ..."
+    sudo mkdir -p "$INSTALL_DIR/run"
+
+    echo "🚚 正在部署二进制文件到 $INSTALL_DIR/sing-box ..."
+    sudo cp "$binary_path" "$INSTALL_DIR/sing-box"
+    sudo chmod +x "$INSTALL_DIR/sing-box"
+
+    echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
+    
+    # === 例外处理：检测是否为 OpenWrt 环境 ===
+    if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
+        echo "   检测到系统为 [OpenWrt / ImmortalWrt] 正在配置 UCI 服务..."
+        cat <<EOF | sudo tee /etc/config/sing-box > /dev/null
+config sing-box 'main'
+    option enabled '1'
+    option conffile '$INSTALL_DIR/run/config.json'
+    option workdir '$INSTALL_DIR/'
+    option log_stderr '1'
+    option delay '2'
