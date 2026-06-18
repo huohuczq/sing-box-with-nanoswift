@@ -96,3 +96,5 @@ curl -L -o install_windows.bat https://cdn.gh-proxy.org/https://raw.githubuserco
 <p align="center">
   <sub>✨ 享受极致轻量、全图形化的代理管理体验 ✨</sub>
 </p>
+
+[![GitHub Star History Chart](https://api.star-history.com/svg?repos=is928joe-jpg/sing-box-with-nanoswift&type=Date)](https://star-history.com/#is928joe-jpg/sing-box-with-nanoswift&Date)
