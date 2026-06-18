@@ -1,4 +1,6 @@
+
 @echo off
+
 cd /d "%~dp0"
 setlocal enabledelayedexpansion
 chcp 65001 >nul
@@ -25,9 +27,9 @@ if !errorlevel! neq 0 (
 )
 
 echo ============================================================
-echo 🚀 Welcome to sing-box (Nanoswift) Windows Upgrade Script
+echo ?? Welcome to sing-box (Nanoswift) Windows Upgrade Script
 echo ============================================================
-echo ⚡ Please select a GitHub proxy proxy for your network:
+echo ? Please select a GitHub proxy proxy for your network:
 echo 1] No Proxy (Direct connection to official GitHub)
 echo 2] v4.gh-proxy.org (Recommended for IPv4 environments)
 echo 3] v6.gh-proxy.org (Recommended for Pure IPv6 / Campus networks)
