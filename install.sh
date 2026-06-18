@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -e 
+set -e # 出错时立即退出
 
 detect_target() {
     local arch os
@@ -23,88 +23,42 @@ detect_target() {
     esac
 }
 
-# 新增函数：获取精选 GitHub 加速后的完整 URL
-get_accelerated_url() {
-    local raw_url="$1"
-    echo "=================================================="
-    echo "⚡ 请选择 GitHub 下载加速代理节点:"
-    echo "1) 官方原始链接 (不使用代理)"
-    echo "2) gh-proxy.com (推荐，经典稳定)"
-    echo "3) v6.gh-proxy.org (纯 IPv6 / 校园网环境佳)"
-    echo "4) hub.glowp.xyz (备用高速反代)"
-    echo "=================================================="
-    
-    read -p "请输入序号 [1-4] (默认 2): " choice
-    [ -z "$choice" ] && choice=2
-
-    case "$choice" in
-        1)
-            echo "$raw_url"
-            ;;
-        2)
-            echo "https://gh-proxy.com/$raw_url"
-            ;;
-        3)
-            echo "https://v6.gh-proxy.org/$raw_url"
-            ;;
-        4)
-            echo "https://hub.glowp.xyz/$raw_url"
-            ;;
-        *)
-            echo "💡 输入无效，回退到默认加速节点 (gh-proxy.com)"
-            echo "https://gh-proxy.com/$raw_url"
-            ;;
-    esac
-}
+# 智能环境兼容：如果当前是 root 用户，或者系统根本没有 sudo 命令，则让 sudo 关键字失效（变成直接执行）
+if [ "$(id -u)" -eq 0 ] || ! command -v sudo &> /dev/null; then
+    sudo() { "$@"; }
+fi
 
 # 配置安装目录与自启动服务
 setup_service() {
     local binary_path="$1"
     
-    echo "--------------------------------------------------"
-    # 1. 提示输入安装目录（增加非空校验循环）
     while true; do
         read -p "📝 请输入 sing-box 的安装目录 (例如: /opt/sing-box): " INSTALL_DIR
         
-        # 如果用户直接回车留空，自动赋予默认值 /opt/sing-box 并跳出循环
         if [ -z "$INSTALL_DIR" ]; then
             INSTALL_DIR="/opt/sing-box"
-            echo "💡 检测到输入为空，已使用默认目录: $INSTALL_DIR"
+            echo "💡 检测到输入为空，已自动为你创建默认目录: $INSTALL_DIR"
             break
         fi
-        
-        # 如果输入了内容，则直接跳出循环
         if [ -n "$INSTALL_DIR" ]; then
             break
         fi
     done
 
-    # 去掉用户输入目录末尾可能携带的斜杠 /
     INSTALL_DIR="${INSTALL_DIR%/}"
 
-    echo "📂 正在创建安装目录与运行目录: $INSTALL_DIR/run ..."
+    echo "📂 正在创建必要的系统目录: $INSTALL_DIR/run ..."
     sudo mkdir -p "$INSTALL_DIR/run"
 
-    # 2. 复制下载的文件到安装目录并重命名
-    echo "🚚 正在复制二进制文件到 $INSTALL_DIR/sing-box ..."
+    echo "🚚 正在部署二进制文件到 $INSTALL_DIR/sing-box ..."
     sudo cp "$binary_path" "$INSTALL_DIR/sing-box"
-    
-    # 3. 赋予执行权限
     sudo chmod +x "$INSTALL_DIR/sing-box"
 
-    # 4. 根据系统类型创建自启动服务
-    echo "⚙️ 正在检测系统初始化管理器..."
+    echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
     
     # === 例外处理：检测是否为 OpenWrt 环境 ===
     if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
         echo "   检测到系统为 [OpenWrt / ImmortalWrt] 正在配置 UCI 服务..."
-
-        if [ ! -f "$INSTALL_DIR/run/config.json" ]; then
-            echo "📝 创建默认空配置文件: $INSTALL_DIR/run/config.json ..."
-            echo '{}' | sudo tee "$INSTALL_DIR/run/config.json" > /dev/null
-        fi
-
-        # 写入 /etc/config/sing-box
         cat <<EOF | sudo tee /etc/config/sing-box > /dev/null
 config sing-box 'main'
     option enabled '1'
@@ -114,7 +68,6 @@ config sing-box 'main'
     option delay '2'
 EOF
 
-        # 写入 /etc/init.d/sing-box
         cat <<EOF | sudo tee /etc/init.d/sing-box > /dev/null
 #!/bin/sh /etc/rc.common
 
@@ -133,10 +86,7 @@ start_service() {
     config_get working_directory "main" "workdir" "$INSTALL_DIR/"
     config_get_bool log_stderr "main" "log_stderr" "1"
     
-    # 1. 读取配置文件中的 delay 参数
     config_get delay "main" "delay" "0"
-
-    # 2. 如果设置了延迟，开机时先等待硬盘挂载
     if [ "\$delay" -gt 0 ]; then
         sleep "\$delay"
     fi
@@ -157,12 +107,11 @@ service_triggers() {
 }
 EOF
         
-        chmod +x /etc/init.d/sing-box
-        cp $INSTALL_DIR/run/vanilla.json $INSTALL_DIR/run/config.json
-        echo "🔄 正在启用并启动 OpenWrt procd 服务..."
+        sudo chmod +x /etc/init.d/sing-box
+        echo "🔄 正在注册并启动 OpenWrt procd 服务..."
         sudo /etc/init.d/sing-box enable
         sudo /etc/init.d/sing-box start
-        echo "✅ OpenWrt UCI/Procd 自启动服务已成功创建并激活！"
+        echo "✅ OpenWrt UCI/Procd 自启动服务已成功激活！"
 
     # === 常规系统：检测 systemd (Ubuntu, Debian 等) ===
     elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
@@ -219,7 +168,6 @@ depend() {
 EOF
         sudo chmod +x /etc/init.d/sing-box
         sudo rc-update add sing-box default 2>/dev/null || true
-        cp $INSTALL_DIR/run/vanilla.json $INSTALL_DIR/run/config.json
         sudo rc-service sing-box start
         echo "✅ OpenRC 自启动服务已成功创建并启动！"
     
@@ -228,10 +176,9 @@ EOF
     fi
 
     # 5. 提示控制面板访问 URL
-    
     echo "--------------------------------------------------"
     echo "🎉 🎉 🎉 安装部署成功 🎉 🎉 🎉"
-    echo "🔗 控制面板访问 URL: http://127.0.0.1:9090"
+    echo "🔗 控制面板访问 URL: http://127.0.0.1:9090/ui"
     if [ -f /etc/openwrt_release ]; then
         echo "⚙️  OpenWrt 配置文件路径: $INSTALL_DIR/run/config.json"
         echo "🔧 你可以通过 uci 命令或修改 /etc/config/sing-box 管理服务"
@@ -250,32 +197,60 @@ if [ "$platform" = "unsupported" ] || [ -z "$platform" ]; then
 fi
 echo "   已检测到平台: $platform"
 
+# 1. 交互选择加速节点（使用 Heredoc 结构规避一切字符冲突）
+cat << 'EOF'
+==================================================
+🚀 欢迎使用 sing-box 自动化安装脚本
+==================================================
+⚡ 请选择适合你当前网络环境的 GitHub 加速代理:
+1) 不使用代理 (直连官方 GitHub)
+2) v4.gh-proxy.org (推荐 IPv4 环境使用)
+3) v6.gh-proxy.org (纯 IPv6 / 校园网环境首选)
+==================================================
+EOF
+read -p "请输入序号 [1-3] (默认选择 2): " PROXY_CHOICE
+[ -z "$PROXY_CHOICE" ] && PROXY_CHOICE=2
+
+case "$PROXY_CHOICE" in
+    1) PROXY_PREFIX="" ;;
+    2) PROXY_PREFIX="https://v4.gh-proxy.org/" ;;
+    3) PROXY_PREFIX="https://v6.gh-proxy.org/" ;;
+    *) PROXY_PREFIX="https://v4.gh-proxy.org/" ;;
+esac
+
 mkdir -p dist
 
-# 定义原始 Raw 下载路径
-RAW_BASE_URL="https://github.com/is928joe-jpg/sing-box-with-nanoswift/raw/refs/heads/main/2026-06-18"
+# 2. 完美的真实测试下载路径
+RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-18"
 BINARY_NAME="sing-box-${platform}"
 SHA_NAME="${BINARY_NAME}.sha256"
 
-# 调用加速选择函数处理完整 URL
-FINAL_BIN_URL=$(get_accelerated_url "${RAW_BASE_URL}/${BINARY_NAME}")
-FINAL_SHA_URL=$(get_accelerated_url "${RAW_BASE_URL}/${SHA_NAME}")
+FINAL_BIN_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${BINARY_NAME}"
+FINAL_SHA_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${SHA_NAME}"
 
-echo "📥 开始下载二进制文件到 dist/ ..."
-curl -L -o "dist/${BINARY_NAME}" "$FINAL_BIN_URL"
-
-echo "📥 开始下载校验文件..."
-curl -L -o "$SHA_NAME" "$FINAL_SHA_URL"
-
-echo "🔍 正在验证文件完整性..."
-if command -v sha256sum &> /dev/null; then
-    sha256sum --check "$SHA_NAME"
-elif command -v shasum &> /dev/null; then
-    shasum -a 256 -c "$SHA_NAME"
-else
-    echo "❌ 错误: 找不到 sha256sum 或 shasum 命令，无法完成校验。"
+# 3. 下载
+echo "📥 正在从网络获取二进制文件到 dist/ ..."
+if ! curl -L -o "dist/${BINARY_NAME}" "$FINAL_BIN_URL"; then
+    echo "❌ 错误: 下载二进制文件失败。"
     exit 1
 fi
 
-# 调用安装目录与启动服务配置
+echo "📥 正在从网络获取哈希校验文件..."
+if ! curl -L -o "$SHA_NAME" "$FINAL_SHA_URL"; then
+    echo "❌ 错误: 下载校验文件失败。"
+    exit 1
+fi
+
+# 4. 校验（使用 -c 完美兼容常规 Linux 与 OpenWrt BusyBox）
+echo "🔍 正在进行 SHA256 安全校验..."
+if command -v sha256sum &> /dev/null; then
+    sha256sum -c "$SHA_NAME"
+elif command -v shasum &> /dev/null; then
+    shasum -a 256 -c "$SHA_NAME"
+else
+    echo "❌ 错误: 找不到 sha256sum 或 shasum 命令。"
+    exit 1
+fi
+
+# 5. 安装
 setup_service "dist/${BINARY_NAME}"
