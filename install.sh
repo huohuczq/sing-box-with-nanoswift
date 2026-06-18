@@ -231,16 +231,24 @@ if ! curl -L -o "${DATE_DIR}/${SHA_NAME}" "$FINAL_SHA_URL"; then
     exit 1
 fi
 
-cd "$DATE_DIR"
 echo "🔍 正在进行 SHA256 安全校验..."
+EXPECTED_HASH=$(awk '{print $1}' "${DATE_DIR}/${SHA_NAME}")
 if command -v sha256sum &> /dev/null; then
-    sha256sum -c "$SHA_NAME"
+    ACTUAL_HASH=$(sha256sum "${DATE_DIR}/${BINARY_NAME}" | awk '{print $1}')
 elif command -v shasum &> /dev/null; then
-    shasum -a 256 -c "$SHA_NAME"
+    ACTUAL_HASH=$(shasum -a 256 "${DATE_DIR}/${BINARY_NAME}" | awk '{print $1}')
 else
     echo "❌ 错误: 找不到 sha256sum 或 shasum 命令。"
     exit 1
 fi
 
-cd - > /dev/null
+if [ "$EXPECTED_HASH" = "$ACTUAL_HASH" ]; then
+    echo "✅ SHA256 校验成功: ${ACTUAL_HASH}"
+else
+    echo "❌ SHA256 校验失败！"
+    echo "   期望: ${EXPECTED_HASH}"
+    echo "   实际: ${ACTUAL_HASH}"
+    exit 1
+fi
+
 setup_service "${DATE_DIR}/${BINARY_NAME}"
