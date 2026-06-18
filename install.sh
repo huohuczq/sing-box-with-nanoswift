@@ -218,9 +218,11 @@ case "$PROXY_CHOICE" in
     *) PROXY_PREFIX="https://v4.gh-proxy.org/" ;;
 esac
 
-mkdir -p dist
+# 创建临时工作目录
+WORK_DIR="dist/$(date +%Y-%m-%d)"
+mkdir -p "$WORK_DIR"
 
-# 2. 完美的真实测试下载路径
+# 2. 构建下载路径
 RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-18"
 BINARY_NAME="sing-box-${platform}"
 SHA_NAME="${BINARY_NAME}.sha256"
@@ -228,20 +230,21 @@ SHA_NAME="${BINARY_NAME}.sha256"
 FINAL_BIN_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${BINARY_NAME}"
 FINAL_SHA_URL="${PROXY_PREFIX}${RAW_BASE_URL}/${SHA_NAME}"
 
-# 3. 下载
-echo "📥 正在从网络获取二进制文件到 dist/ ..."
-if ! curl -L -o "dist/${BINARY_NAME}" "$FINAL_BIN_URL"; then
+# 3. 下载到正确的位置
+echo "📥 正在从网络获取二进制文件到 ${WORK_DIR}/ ..."
+if ! curl -L -o "${WORK_DIR}/${BINARY_NAME}" "$FINAL_BIN_URL"; then
     echo "❌ 错误: 下载二进制文件失败。"
     exit 1
 fi
 
 echo "📥 正在从网络获取哈希校验文件..."
-if ! curl -L -o "$SHA_NAME" "$FINAL_SHA_URL"; then
+if ! curl -L -o "${WORK_DIR}/${SHA_NAME}" "$FINAL_SHA_URL"; then
     echo "❌ 错误: 下载校验文件失败。"
     exit 1
 fi
 
-# 4. 校验（使用 -c 完美兼容常规 Linux 与 OpenWrt BusyBox）
+# 4. 进入工作目录进行校验
+cd "$WORK_DIR"
 echo "🔍 正在进行 SHA256 安全校验..."
 if command -v sha256sum &> /dev/null; then
     sha256sum -c "$SHA_NAME"
@@ -252,5 +255,6 @@ else
     exit 1
 fi
 
-# 5. 安装
-setup_service "dist/${BINARY_NAME}"
+# 5. 返回到脚本根目录进行安装
+cd - > /dev/null
+setup_service "${WORK_DIR}/${BINARY_NAME}"

@@ -1,7 +1,7 @@
 # 袖珍 sing-box with Nanoswift
 
-<p align="center">
-  <strong>⚡ 体积不到 20M，全图形化操作的 sing-box 便捷管理工具 ⚡</strong>
+<p align="left">
+  <strong>⚡ sing-box + nanoswift 体积不到 20M，全图形化操作的 sing-box 便捷管理工具 ⚡</strong>
 </p>
 
 ---
