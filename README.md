@@ -86,4 +86,12 @@ curl -L -o install_windows.bat https://cdn.gh-proxy.org/https://raw.githubuserco
 
 ---
 
-[![GitHub Star History Chart](https://api.star-history.com/svg?repos=is928joe-jpg/sing-box-with-nanoswift&type=Date)](https://star-history.com/#is928joe-jpg/sing-box-with-nanoswift&Date)
+## Star History
+
+<a href="https://www.star-history.com/?type=date&repos=is928joe-jpg%2Fsing-box-with-nanoswift">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/chart?repos=is928joe-jpg/sing-box-with-nanoswift&type=date&theme=dark&legend=top-left" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/chart?repos=is928joe-jpg/sing-box-with-nanoswift&type=date&legend=top-left" />
+   <img alt="Star History Chart" src="https://api.star-history.com/chart?repos=is928joe-jpg/sing-box-with-nanoswift&type=date&legend=top-left" />
+ </picture>
+</a>
