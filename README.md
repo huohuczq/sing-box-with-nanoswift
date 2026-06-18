@@ -4,10 +4,10 @@
   <strong>⚡ sing-box + nanoswift 体积不到 20M（9-12M），全图形化操作的 sing-box 便捷管理工具 ⚡</strong>
 </p>
 <p align="left">
-  <strong>⚡ 安装完成之后，面板访问：http://127.0.0.1:9090/ui 默认密码：12345678 ⚡</strong>
+  <strong>⚡ 安装之前，请检查1080，9090端口有没有被占用 ⚡</strong>
 </p>
 <p align="left">
-  <strong>⚡ 安装之前，请检查1080，9090端口有没有被占用 ⚡</strong>
+  <strong>⚡ 安装完成之后，面板访问：http://127.0.0.1:9090/ui 默认密码：12345678 ⚡</strong>
 </p>
 ---
 
