@@ -11,7 +11,7 @@
 
 ## ✨ 核心特性
 
-* **极致轻量**：整体体积不到 20MB，精简高效。
+* **极致轻量**：整体体积不到 20MB(9-12M)，精简高效。
 * **全功能保留**：完美继承 sing-box 的所有核心网络代理能力。
 * **图形化管理**：集成 YACD 面板，节点、分流、策略组全可视化操作。
 * **小白友好**：无需手动编写 YAML/JSON，点点鼠标即可完成日常管理与切换。
@@ -44,6 +44,7 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 ### 🪟 Windows 平台
 
 请根据您的网络环境，选择以下任意一条命令在 **PowerShell** 或 **CMD** 中执行：
+**发现一个坑：** 发现被github 从ms-dos格式强行转换为unix格式了，install.sh使用记事本重新保存一下，就不会出错，可能需要再写一个powershell版本，它没有这个问题。
 
 **IPv4 优先下载：**
 ```powershell
