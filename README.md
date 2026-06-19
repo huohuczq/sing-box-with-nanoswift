@@ -23,7 +23,7 @@
 
 ---
 
-## 🚀 快速安装
+## 🚀 快速安装/重装
 
 ### 🐧 Unix (Linux /Openwrt / macOS) 平台
 
