@@ -44,6 +44,11 @@ bash -c "$(curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/
 bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh)"
 ```
 
+**尝鲜版下载：**
+```bash
+bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install_unix_lastest.sh)"
+```
+
 ---
 
 ### 🪟 Windows 平台
@@ -65,6 +70,10 @@ curl -L -o install_windows.bat https://v6.gh-proxy.org/https://raw.githubusercon
 curl -L -o install_windows.bat https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install_windows.bat && install_windows.bat
 ```
 
+**尝鲜版下载：**
+```bash
+bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install_windows_lastest.bat)"
+```
 ---
 
 ## 📸 界面预览
