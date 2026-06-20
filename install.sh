@@ -29,7 +29,7 @@ fi
 
 setup_service() {
     local binary_path="$1"
-    
+
     while true; do
         read -p "📝 请输入 sing-box 的安装目录 (例如: /opt/sing-box): " INSTALL_DIR
         
@@ -250,5 +250,24 @@ else
     echo "   实际: ${ACTUAL_HASH}"
     exit 1
 fi
+
+# ========== 在 SHA256 校验通过后、setup_service 之前插入 ==========
+
+echo "🛑 正在停止可能正在运行的旧 sing-box 服务..."
+if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
+    sudo /etc/init.d/sing-box stop 2>/dev/null || true
+    sudo /etc/init.d/sing-box disable 2>/dev/null || true
+elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
+    sudo systemctl stop sing-box 2>/dev/null || true
+    sudo systemctl disable sing-box 2>/dev/null || true
+elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
+    sudo rc-service sing-box stop 2>/dev/null || true
+    sudo rc-update del sing-box default 2>/dev/null || true
+fi
+sudo pkill -f "sing-box run" 2>/dev/null || true
+sleep 1
+echo "✅ 旧服务已停止"
+
+# ======================================================
 
 setup_service "${DATE_DIR}/${BINARY_NAME}"
