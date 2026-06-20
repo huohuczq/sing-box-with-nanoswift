@@ -78,22 +78,35 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 ## 📸 界面预览
 
 ### 🏠 Nanoswift 首页
-![Nanoswift 首页](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png?raw=true" alt="Nanoswift 首页" width="100%">
+</a>
 
 ### 📋 分流规则管理
-![分流规则管理](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png?raw=true" alt="分流规则管理" width="100%">
+</a>
 
 ### 🌐 节点池管理
-![节点池管理](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png?raw=true" alt="节点池管理" width="100%">
+</a>
 
 ### 📦 节点组管理
-![节点组管理](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png?raw=true" alt="节点组管理" width="100%">
+</a>
 
 ### 🪟 Windows 安装界面
-![Windows 安装界面](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png?raw=true" alt="Windows 安装界面" width="100%">
+</a>
 
 ### 🪟 节点订阅界面
-![节点订阅界面](https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png?raw=true)
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png?raw=true" alt="节点订阅界面" width="100%">
+</a>
+---
 ---
 
 ## Star History
