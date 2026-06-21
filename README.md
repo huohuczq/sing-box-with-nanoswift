@@ -111,6 +111,11 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 <a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nano_new_version.png?raw=true" target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nano_new_version.png?raw=true" alt="新版本界面提示" width="100%">
 </a>
+
+### 🪟 安装在本来吃灰的小米AX3000T上
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" alt="小米AX3000T上" width="100%">
+</a>
 ---
 
 ## Star History
