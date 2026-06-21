@@ -90,7 +90,7 @@ start_service() {
 
     procd_open_instance
     procd_set_param command "\$PROG" run -c "\$config_file" -D "\$working_directory"
-    procd_set_param env HOME="\$working_directory"
+    procd_set_param env HOME="$working_directory" GOMEMLIMIT="48MiB" GOGC="50"
     procd_set_param file "\$config_file"
     procd_set_param stderr "\$log_stderr"
     procd_set_param limits core="unlimited"
