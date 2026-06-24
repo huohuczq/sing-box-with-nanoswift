@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+cd /tmp
 set -e # 出错时立即退出
 
 detect_target() {
@@ -45,11 +45,19 @@ setup_service() {
 
     INSTALL_DIR="${INSTALL_DIR%/}"
 
+    # ========== 🚀 严格在此处：新文件释放前，精准移除除 profile/ 和 static/ 外的全部内容 ==========
+    if [ -d "$INSTALL_DIR" ]; then
+        echo "🧹 正在释放新文件前清理目录，仅保留 static/ 和 profile/ ..."
+        sudo find "$INSTALL_DIR" -mindepth 1 ! -path "$INSTALL_DIR/profile*" ! -path "$INSTALL_DIR/static*" -delete 2>/dev/null || true
+    fi
+    # =======================================================================================
+
     echo "📂 正在创建必要的系统目录: $INSTALL_DIR/run ..."
     sudo mkdir -p "$INSTALL_DIR/run"
 
     echo "🚚 正在部署二进制文件到 $INSTALL_DIR/sing-box ..."
     sudo cp "$binary_path" "$INSTALL_DIR/sing-box"
+    # 需要增加移除"$INSTALL_DIR/"的文件，目录，除了 （目录$INSTALL_DIR/profile/, $INSTALL_DIR/static/,"$INSTALL_DIR/sing-box"）
     sudo chmod +x "$INSTALL_DIR/sing-box"
 
     echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
@@ -193,7 +201,7 @@ cat << 'EOF'
 ==================================================
 🚀 欢迎使用 sing-box 自动化安装脚本
 ==================================================
-⚡ 请选择适合你当前网络环境的 GitHub 加速代理:
+⚡ 请选择适合你当前 network 环境的 GitHub 加加速代理:
 1) 不使用代理 (直连官方 GitHub)
 2) v4.gh-proxy.org (推荐 IPv4 环境使用)
 3) v6.gh-proxy.org (纯 IPv6 / 校园网环境首选)
@@ -212,7 +220,7 @@ esac
 DATE_DIR="dist/$(date +%Y-%m-%d)"
 mkdir -p "$DATE_DIR"
 
-RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-21"
+RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-23"
 BINARY_NAME="sing-box-${platform}"
 SHA_NAME="${BINARY_NAME}.sha256"
 
@@ -261,7 +269,7 @@ elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
     sudo systemctl stop sing-box 2>/dev/null || true
     sudo systemctl disable sing-box 2>/dev/null || true
 elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
-    sudo rc-service sing-box stop 2>/dev/null || true
+    sudo rc-service sing-box start stop 2>/dev/null || true
     sudo rc-update del sing-box default 2>/dev/null || true
 fi
 sudo pkill -f "sing-box run" 2>/dev/null || true
