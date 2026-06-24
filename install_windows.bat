@@ -216,6 +216,11 @@ if exist "restart.exe" (
     if !errorlevel! equ 0 (echo     Deleted: restart.exe) else (echo     [WARNING] Failed to delete: restart.exe)
 )
 
+if exist "version.txt" (
+    del /f /q "version.txt" 2>nul
+    if !errorlevel! equ 0 (echo     Deleted: version.txt) else (echo     [WARNING] Failed to delete: version.txt)
+)
+
 :: ==========================================
 :: 4. Remove old sing-box.exe with retry
 :: ==========================================
