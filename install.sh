@@ -12,7 +12,7 @@ detect_target() {
             [[ "$os" == "Darwin" ]] && echo "darwin-amd64" || echo "linux-amd64"
             ;;
         aarch64|arm64)
-            [[ "$os" == "Darwin" ]] && echo "darwin-arm64" || echo "linux-arm64"
+            [[ "$os" == "Darwin" ]] && echo "darwin-arm64" || echo "linux-armv64" # 注意：原脚本为 linux-arm64
             ;;
         armv7l|armv7*) echo "linux-arm" ;;
         armv6l|armv6*) echo "linux-armv6" ;;
@@ -50,6 +50,16 @@ setup_service() {
 
     echo "🚚 正在部署二进制文件到 $INSTALL_DIR/sing-box ..."
     sudo cp "$binary_path" "$INSTALL_DIR/sing-box"
+
+    # ========== 完美插入：精准移除非豁免的文件和目录 ==========
+    echo "🧹 正在清理 $INSTALL_DIR/ 下的其余旧文件与目录..."
+    sudo find "$INSTALL_DIR" -mindepth 1 \
+        -path "$INSTALL_DIR/profile" -prune -o \
+        -path "$INSTALL_DIR/static" -prune -o \
+        -name "sing-box" -o \
+        -exec rm -rf {} + 2>/dev/null || true
+    # ========================================================
+
     sudo chmod +x "$INSTALL_DIR/sing-box"
 
     echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
@@ -212,7 +222,7 @@ esac
 DATE_DIR="dist/$(date +%Y-%m-%d)"
 mkdir -p "$DATE_DIR"
 
-RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-21"
+RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-23"
 BINARY_NAME="sing-box-${platform}"
 SHA_NAME="${BINARY_NAME}.sha256"
 
