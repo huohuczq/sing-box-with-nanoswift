@@ -3,16 +3,35 @@ cd /tmp
 set -e # 出错时立即退出
 
 detect_target() {
-    local arch os
+    local arch os user_space
     arch="$(uname -m)"
     os="$(uname -s)"
+
+    # 如果是 Linux 且检测到是 aarch64，进一步验证用户态是 32 位还是 64 位
+    if [[ "$os" == "Linux" && ( "$arch" == "aarch64" || "$arch" == "arm64" ) ]]; then
+        # 读取系统核心 shell 的文件头特征，看它到底是 32-bit 还是 64-bit
+        if grep -q "ELF 32-bit" /bin/sh 2>/dev/null; then
+            user_space="32"
+        else
+            user_space="64"
+        fi
+    fi
 
     case "$arch" in
         x86_64|amd64)
             [[ "$os" == "Darwin" ]] && echo "darwin-amd64" || echo "linux-amd64"
             ;;
         aarch64|arm64)
-            [[ "$os" == "Darwin" ]] && echo "darwin-arm64" || echo "linux-arm64"
+            if [[ "$os" == "Darwin" ]]; then
+                echo "darwin-arm64"
+            else
+                # 如果用户态是 32 位，强制降级下载 arm 32位版本
+                if [[ "$user_space" == "32" ]]; then
+                    echo "linux-arm"
+                else
+                    echo "linux-arm64"
+                fi
+            fi
             ;;
         armv7l|armv7*) echo "linux-arm" ;;
         armv6l|armv6*) echo "linux-armv6" ;;
