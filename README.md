@@ -118,6 +118,78 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 </a>
 ---
 
+---
+
+## 更新说明与致谢
+
+> **💡 更新摘要**
+> 本次更新**修复了 `install.sh` 脚本在部分环境下可能导致平台无法正确识别的问题**。我们采用了兼容性更强的检测方法，以确保脚本在各种系统架构下都能稳定运行。
+> 核心提示：**sing-box 核心原生支持全平台**。
+
+这个项目起初只是为了方便自己使用，没想到分享出来后能得到这么多朋友的支持。随着使用人数的增加，难免会遇到一些未知的边界情况。
+
+**开源离不开大家的共同维护！** 如果你在使用过程中遇到任何问题或 Bug，请直接提交 Issue 或指出。每一份反馈都是让它变得更好的动力，期待我们一起把这个工具做得更完美！🤝
+
+---
+
+## 各平台服务移除说明
+
+如果你需要卸载或移除服务，可以参考以下对应平台的命令。本程序为**绿色软件**，在成功停止并执行移除命令后，**直接删除安装目录文件夹即可**，对系统不会残留任何负面影响。
+
+### 🔹 Windows
+
+在**管理员权限**的命令提示符（CMD）中运行：
+
+```cmd
+net stop nanoswift
+sc delete nanoswift 
+
+```
+
+### 🔹 Linux
+
+```bash
+systemctl stop sing-box
+systemctl disable sing-box
+
+```
+
+### 🔹 OpenWrt
+
+```bash
+/etc/init.d/sing-box stop
+/etc/init.d/sing-box disable
+
+```
+
+### 🔹 macOS
+
+根据你当初的安装方式，选择以下一种方法：
+
+**方法 A：通过系统 `launchd` 服务运行（常规手动安装）**
+
+```bash
+# 1. 停止并注销服务（若是系统全局服务，需加 sudo）
+sudo launchctl bootout system /Library/LaunchDaemons/ch.moe.sing-box.plist
+
+# 2. 删除对应的服务配置文件
+sudo rm /Library/LaunchDaemons/ch.moe.sing-box.plist
+
+```
+
+> *注：若你修改过服务名或 `.plist` 文件名，请按实际名称进行替换。*
+
+**方法 B：通过 Homebrew 包管理器安装**
+
+```bash
+# 1. 停止并禁用服务
+brew services stop sing-box
+
+# 2. 卸载程序核心
+brew uninstall sing-box
+
+```
+
 ## Star History
 
 <a href="https://www.star-history.com/?type=date&repos=is928joe-jpg%2Fsing-box-with-nanoswift">
