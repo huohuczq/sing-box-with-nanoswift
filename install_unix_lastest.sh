@@ -2,17 +2,35 @@
 cd /tmp
 set -e # 出错时立即退出
 
+# 采用uname -m 
 detect_target() {
-    local arch os
+    local arch os user_space
     arch="$(uname -m)"
     os="$(uname -s)"
+
+    if [[ "$os" == "Linux" && ( "$arch" == "aarch64" || "$arch" == "arm64" ) ]]; then
+        if grep -q "ELF 32-bit" /bin/sh 2>/dev/null; then
+            user_space="32"
+        else
+            user_space="64"
+        fi
+    fi
 
     case "$arch" in
         x86_64|amd64)
             [[ "$os" == "Darwin" ]] && echo "darwin-amd64" || echo "linux-amd64"
             ;;
         aarch64|arm64)
-            [[ "$os" == "Darwin" ]] && echo "darwin-arm64" || echo "linux-arm64"
+            if [[ "$os" == "Darwin" ]]; then
+                echo "darwin-arm64"
+            else
+                # 如果用户态是 32 位，强制降级下载 arm 32位版本
+                if [[ "$user_space" == "32" ]]; then
+                    echo "linux-arm"
+                else
+                    echo "linux-arm64"
+                fi
+            fi
             ;;
         armv7l|armv7*) echo "linux-arm" ;;
         armv6l|armv6*) echo "linux-armv6" ;;
@@ -57,13 +75,14 @@ setup_service() {
 
     echo "🚚 正在部署二进制文件到 $INSTALL_DIR/sing-box ..."
     sudo cp "$binary_path" "$INSTALL_DIR/sing-box"
-    # 需要增加移除"$INSTALL_DIR/"的文件，目录，除了 （目录$INSTALL_DIR/profile/, $INSTALL_DIR/static/,"$INSTALL_DIR/sing-box"）
     sudo chmod +x "$INSTALL_DIR/sing-box"
 
     echo "⚙️ 正在检测系统初始化管理器并配置自启动..."
     
     if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
-        echo "   检测到系统为 [OpenWrt / ImmortalWrt] 正在配置 UCI 服务..."
+        echo "   检测到系统为 [OpenWrt / ImmortalWrt] 正在配置 UCI 服务与 LuCI 面板..."
+        
+        # 1. 生成 UCI 配置文件
         cat <<EOF | sudo tee /etc/config/sing-box > /dev/null
 config sing-box 'main'
     option enabled '1'
@@ -73,6 +92,59 @@ config sing-box 'main'
     option delay '2'
 EOF
 
+        # 2. 创建 LuCI 目标目录
+        sudo mkdir -p /usr/lib/lua/luci/controller/
+        sudo mkdir -p /usr/lib/lua/luci/model/cbi/
+
+        # 3. 生成 LuCI Controller 路由文件
+        sudo tee /usr/lib/lua/luci/controller/singbox.lua > /dev/null << '___LUCICONT___'
+module("luci.controller.singbox", package.seeall)
+
+function index()
+    if not nixio.fs.access("/etc/config/sing-box") then
+        return
+    end
+    entry({"admin", "services", "singbox"}, cbi("singbox"), _("Sing-Box with Nanoswift"), 60).dependent = true
+end
+___LUCICONT___
+
+        # 4. 生成 LuCI Model 界面文件
+        sudo tee /usr/lib/lua/luci/model/cbi/singbox.lua > /dev/null << '___LUCIMODEL___'
+local m, s, o
+
+m = Map("sing-box", translate("Sing-Box with Nanoswift"), translate("轻量级通用代理平台控制面板"))
+
+s = m:section(NamedSection, "main", "sing-box")
+s.anonymous = true
+s.addremove = false
+
+o = s:option(Flag, "enabled", translate("启用状态"), translate("开启或关闭 Sing-Box 服务"))
+o.rmempty = false
+o.default = "0"
+
+o = s:option(Value, "delay", translate("启动延时 (秒)"), translate("设置 sing-box 启动时的延迟时间（秒）"))
+o.datatype = "integer"
+o.rmempty = false
+o.default = "2"
+
+o = s:option(DummyValue, "workdir", translate("工作目录"))
+o = s:option(DummyValue, "conffile", translate("配置文件路径"))
+
+local apply = luci.http.formvalue("cbi.apply")
+if apply then
+    luci.sys.init.restart("sing-box")
+end
+
+return m
+___LUCIMODEL___
+
+        # 5. 修正 LuCI 文件权限并清理缓存
+        sudo chmod 644 /usr/lib/lua/luci/controller/singbox.lua
+        sudo chmod 644 /usr/lib/lua/luci/model/cbi/singbox.lua
+        sudo rm -rf /tmp/luci-indexcache /tmp/luci-modulecache
+        echo "🎨 LuCI 面板 'Sing-Box with Nanoswift' 已成功同步安装！"
+
+        # 6. 生成 Procd 启动脚本
         cat <<EOF | sudo tee /etc/init.d/sing-box > /dev/null
 #!/bin/sh /etc/rc.common
 
@@ -269,7 +341,7 @@ elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
     sudo systemctl stop sing-box 2>/dev/null || true
     sudo systemctl disable sing-box 2>/dev/null || true
 elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
-    sudo rc-service sing-box start stop 2>/dev/null || true
+    sudo rc-service sing-box stop 2>/dev/null || true
     sudo rc-update del sing-box default 2>/dev/null || true
 fi
 sudo pkill -f "sing-box run" 2>/dev/null || true
