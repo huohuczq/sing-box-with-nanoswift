@@ -116,6 +116,9 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 <a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" alt="小米AX3000T上" width="100%">
 </a>
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-1.png?raw=true" target="_blank">
+  <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-1.png?raw=true" alt="小米AX3000T上" width="100%">
+</a>
 ---
 
 ---
