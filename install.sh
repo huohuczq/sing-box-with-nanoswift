@@ -7,9 +7,7 @@ detect_target() {
     arch="$(uname -m)"
     os="$(uname -s)"
 
-    # 如果是 Linux 且检测到是 aarch64，进一步验证用户态是 32 位还是 64 位
     if [[ "$os" == "Linux" && ( "$arch" == "aarch64" || "$arch" == "arm64" ) ]]; then
-        # 读取系统核心 shell 的文件头特征，看它到底是 32-bit 还是 64-bit
         if grep -q "ELF 32-bit" /bin/sh 2>/dev/null; then
             user_space="32"
         else
