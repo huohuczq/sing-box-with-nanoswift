@@ -65,8 +65,15 @@ setup_service() {
 
     # ========== 🚀 严格在此处：新文件释放前，精准移除除 profile/ 和 static/ 外的全部内容 ==========
     if [ -d "$INSTALL_DIR" ]; then
-        echo "🧹 正在释放新文件前清理目录，仅保留 static/ 和 profile/ ..."
-        sudo find "$INSTALL_DIR" -mindepth 1 ! -path "$INSTALL_DIR/profile*" ! -path "$INSTALL_DIR/static*" -delete 2>/dev/null || true
+        echo "🧹 正在释放新文件前清理目录 $INSTALL_DIR ..."
+        echo "💡 安全保留提示：仅保留用户数据目录 (static/ 和 profile/)"
+        
+        # 1. 移除非白名单的一级文件和文件夹（如 version.txt, cache.db, srs_updater 以及旧二进制等）
+        #    这里将 profile 和 static 两个核心目录护住，其余（包括旧的 run 目录）直接斩立决
+        sudo find "$INSTALL_DIR" -mindepth 1 -maxdepth 1 \
+            ! -name "profile" \
+            ! -name "static" \
+            -exec rm -rf {} + 2>/dev/null || true
     fi
     # =======================================================================================
 
