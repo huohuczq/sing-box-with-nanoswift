@@ -41,7 +41,7 @@ if "!PROXY_CHOICE!"=="3" set "PROXY_PREFIX=https://v6.gh-proxy.org/"
 if not "!PROXY_CHOICE!"=="1" if not "!PROXY_CHOICE!"=="2" if not "!PROXY_CHOICE!"=="3" set "PROXY_PREFIX=https://v4.gh-proxy.org/"
 
 :: Configure verified repository download paths
-set "RAW_BASE_URL=https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-23"
+set "RAW_BASE_URL=https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-26"
 set "BINARY_NAME=sing-box-windows-amd64.exe"
 set "SHA_NAME=sing-box-windows-amd64.exe.sha256"
 set "FINAL_BIN_URL=!PROXY_PREFIX!!RAW_BASE_URL!/!BINARY_NAME!"
@@ -176,61 +176,43 @@ if exist "sing-box.exe" (
 :: ==========================================
 echo.
 echo [INFO] Cleaning up old application data caches...
-if exist "cache.db" (
-    del /f /q "cache.db" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: cache.db) else (echo     [WARNING] Failed to delete: cache.db)
+
+:: 整合单文件清理逻辑，移除冗余的两次 version.txt 检测
+for %%F in (cache.db version.txt convert.exe readme.pdf restart.exe) do (
+    if exist "%%F" (
+        del /f /q "%%F" 2>nul
+        if exist "%%F" (echo     [WARNING] Failed to delete: %%F) else (echo     Deleted: %%F)
+    )
 )
 
-if exist "version.txt" (
-    del /f /q "version.txt" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: version.txt) else (echo     [WARNING] Failed to delete: version.txt)
-)
-
-if exist "convert" (
-    rmdir /s /q "convert" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: convert) else (echo     [WARNING] Failed to delete: convert)
-)
-
-if exist "dashboard" (
-    rmdir /s /q "dashboard" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: dashboard) else (echo     [WARNING] Failed to delete: dashboard)
-)
-
-if exist "rules" (
-    rmdir /s /q "rules" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: rules) else (echo     [WARNING] Failed to delete: rules)
-)
-
-if exist "convert.exe" (
-    del /f /q "convert.exe" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: convert.exe) else (echo     [WARNING] Failed to delete: convert.exe)
-)
-
-if exist "readme.pdf" (
-    del /f /q "readme.pdf" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: readme.pdf) else (echo     [WARNING] Failed to delete: readme.pdf)
-)
-
-if exist "restart.exe" (
-    del /f /q "restart.exe" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: restart.exe) else (echo     [WARNING] Failed to delete: restart.exe)
-)
-
-if exist "version.txt" (
-    del /f /q "version.txt" 2>nul
-    if !errorlevel! equ 0 (echo     Deleted: version.txt) else (echo     [WARNING] Failed to delete: version.txt)
+:: 整合文件夹清理逻辑
+for %%D in (convert dashboard rules) do (
+    if exist "%%D" (
+        rmdir /s /q "%%D" 2>nul
+        if exist "%%D" (echo     [WARNING] Failed to delete directory: %%D) else (echo     Deleted directory: %%D)
+    )
 )
 
 :: ==========================================
-:: 4. Remove old sing-box.exe with retry
+:: 4. Remove old sing-box.exe with Safe Retry Counter
 :: ==========================================
 echo.
 echo [INFO] Removing old sing-box.exe...
 if exist "sing-box.exe" (
+    set /a RETRY_COUNT=0
     :retry_delete
     del /f /q "sing-box.exe" 2>nul
+    
     if exist "sing-box.exe" (
-        echo     [WARNING] Failed to delete sing-box.exe, retrying in 3 seconds...
+        set /a RETRY_COUNT+=1
+        if !RETRY_COUNT! gtr 4 (
+            echo.
+            echo [FATAL] After multiple attempts, sing-box.exe is still locked by the system or antivirus.
+            echo         Please manually terminate it via Task Manager and rerun this script.
+            pause
+            exit /b 1
+        )
+        echo     [WARNING] File locked, retrying (!RETRY_COUNT!/4) in 3 seconds...
         taskkill /f /im sing-box.exe >nul 2>&1
         taskkill /f /im nanoswift.exe >nul 2>&1
         timeout /t 3 >nul
@@ -271,13 +253,18 @@ if exist "sing-box-windows-amd64.exe" (
 )
 
 :: ==========================================
-:: 6. Initialize core executable
+:: 6. Verify core executable integrity
 :: ==========================================
 echo.
-echo [INFO] Initializing sing-box environment setup...
+echo [INFO] Verifying sing-box environment integrity...
 if exist "sing-box.exe" (
-    start "" /wait sing-box.exe
-    echo     sing-box.exe initialization triggered successfully.
+    :: 修正：不再执行可能导致阻塞卡死的 start /wait 盲目调用，改用检查版本号，迅速返回结果验证
+    sing-box.exe version >nul 2>&1
+    if !errorlevel! equ 0 (
+        echo     sing-box.exe verification passed.
+    ) else (
+        echo     [WARNING] sing-box.exe failed to respond to core version query.
+    )
 ) else (
     echo     [ERROR] Runtime binary sing-box.exe not found!
     pause
