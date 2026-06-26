@@ -104,7 +104,7 @@ if !errorlevel! neq 0 (
 )
 
 :: ==========================================
-:: SHA256 完整性验证（修复版：自动兼容所有常见 .sha256 格式）
+:: SHA256 完整性验证（最终修复版）
 :: ==========================================
 echo.
 echo [INFO] Performing SHA256 integrity check...
@@ -186,7 +186,7 @@ if "!SB_ALIVE!"=="0" set /a PROCESS_POLL+=1
 if "!NS_ALIVE!"=="0" set /a PROCESS_POLL+=1
 
 if !PROCESS_POLL! gtr 0 (
-    if !PROCESS_POLL! ltr 6 (
+    if !PROCESS_POLL! lss 6 (
         taskkill /f /im sing-box.exe >nul 2>&1
         taskkill /f /im nanoswift.exe >nul 2>&1
         goto poll_loop
