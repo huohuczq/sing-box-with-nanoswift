@@ -2,6 +2,30 @@
 cd /tmp
 set -e # 出错时立即退出
 
+# ================= 🛡️ 基础依赖自动化体检与修复 =================
+if [ -f /etc/debian_version ] || [ -f /etc/redhat-release ]; then
+    echo "🔍 正在检查必要的基础工具依赖..."
+    REQUIRED_PKGS=""
+    command -v curl &>/dev/null || REQUIRED_PKGS="${REQUIRED_PKGS} curl"
+    command -v pkill &>/dev/null || REQUIRED_PKGS="${REQUIRED_PKGS} procps"
+    command -v killall &>/dev/null || REQUIRED_PKGS="${REQUIRED_PKGS} psmisc"
+    
+    if [ -n "$REQUIRED_PKGS" ]; then
+        echo "📦 发现缺失基础工具:${REQUIRED_PKGS}，正在自动安装..."
+        set +e
+        if command -v apt-get &>/dev/null; then
+            apt-get update -y >/dev/null 2>&1
+            apt-get install -y ${REQUIRED_PKGS} >/dev/null 2>&1
+        elif command -v yum &>/dev/null; then
+            yum install -y ${REQUIRED_PKGS} >/dev/null 2>&1
+        fi
+        set -e
+    else
+        echo "✅ 基础依赖检查通过！"
+    fi
+fi
+# =================================================================
+
 # 采用uname -m 
 detect_target() {
     local arch os user_space
@@ -337,23 +361,45 @@ else
     exit 1
 fi
 
-# ========== 在 SHA256 校验通过后、setup_service 之前插入 ==========
+# ========== ⚙️ 核心修复：安全停止旧服务（防止闪退和卡死） ==========
 
-echo "🛑 正在停止可能正在运行的旧 sing-box 服务..."
-if [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
-    sudo /etc/init.d/sing-box stop 2>/dev/null || true
-    sudo /etc/init.d/sing-box disable 2>/dev/null || true
-elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
-    sudo systemctl stop sing-box 2>/dev/null || true
-    sudo systemctl disable sing-box 2>/dev/null || true
+echo "🛑 正在检测并安全停止旧 sing-box 服务..."
+
+# 临时关闭 set -e 警报器，防止不存在服务时命令报错引发脚本闪退
+set +e
+
+if [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
+    # 先验证服务文件是否存在，彻底避开 systemctl 返回 5 号错误导致死掉的问题
+    if systemctl list-unit-files | grep -q "sing-box.service"; then
+        echo "   [systemd] 正在异步停止旧服务..."
+        sudo systemctl stop sing-box --no-block >/dev/null 2>&1
+        sudo systemctl disable sing-box >/dev/null 2>&1
+    fi
+elif [ -f /etc/openwrt_release ] || [ -d /etc/config ]; then
+    if [ -x /etc/init.d/sing-box ]; then
+        sudo /etc/init.d/sing-box stop >/dev/null 2>&1
+        sudo /etc/init.d/sing-box disable >/dev/null 2>&1
+    fi
 elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
-    sudo rc-service sing-box stop 2>/dev/null || true
-    sudo rc-update del sing-box default 2>/dev/null || true
+    sudo rc-service sing-box stop >/dev/null 2>&1
+    sudo rc-update del sing-box default >/dev/null 2>&1
 fi
-sudo pkill -f "sing-box run" 2>/dev/null || true
-sleep 1
-echo "✅ 旧服务已停止"
 
-# ======================================================
+# 使用底层的 kill -9 强杀，无视进程挂起，直接物理超度残留的僵尸进程
+echo "⏳ 正在强制清理可能残留的 sing-box 进程与网络接口..."
+sudo pkill -9 -f "sing-box run" >/dev/null 2>&1
+sudo killall -9 sing-box >/dev/null 2>&1
+
+# 顺手将挂起的 TUN 虚拟网卡摘除，防止新旧服务网络冲突
+if command -v ip &>/dev/null; then
+    sudo ip link delete sing-box >/dev/null 2>&1
+fi
+
+# 恢复严格控制模式
+set -e
+sleep 1
+echo "✅ 旧服务环境安全清理完毕"
+
+# =================================================================
 
 setup_service "${DATE_DIR}/${BINARY_NAME}"

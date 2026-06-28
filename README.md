@@ -28,24 +28,24 @@
 
 请根据您的网络环境，选择以下任意一条命令复制到终端执行：
 
-**IPv4 优先下载：**
+# IPv4 优先下载
 ```bash
-bash -c "$(curl -fsSL https://v4.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh)"
+curl -fsSL -o install.sh "https://v4.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh" && bash install.sh
 ```
 
-**IPv6 优先下载：**
+# IPv6 优先下载
 ```bash
-bash -c "$(curl -fsSL https://v6.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh)"
+curl -fsSL -o install.sh "https://v6.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh" && bash install.sh
 ```
 
-**CDN 加速下载：**
+# CDN 加速下载
 ```bash
-bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh)"
+curl -fsSL -o install.sh "https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install.sh" && bash install.sh
 ```
 
-**尝鲜版下载：**
+# 尝鲜版下载
 ```bash
-bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install_unix_lastest.sh)"
+curl -fsSL -o install.sh "https://cdn.gh-proxy.org/https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/install_unix_lastest.sh" && bash install.sh
 ```
 
 ---
