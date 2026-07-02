@@ -485,39 +485,25 @@ for %%D in (convert dashboard rules ui assets) do (
 :: ==========================================
 
 echo.
-
 echo [INFO] Overwriting sing-box.exe runtime binary...
 
-if exist "sing-box.exe" (
+:: 修复：将 if 块展开，避免在括号内使用标签
+if not exist "sing-box.exe" goto force_deploy
 
-    set /a RETRY_COUNT=0
+set /a RETRY_COUNT=0
 
-    :retry_delete
-
-    del /f /q "sing-box.exe" 2>nul
-
+:retry_delete
+del /f /q "sing-box.exe" 2>nul
     
-
-    if exist "sing-box.exe" (
-
-        set /a RETRY_COUNT+=1
-
-        if !RETRY_COUNT! gtr 3 (
-
-            goto force_deploy
-
-        )
-
-        taskkill /f /im sing-box.exe >nul 2>&1
-
-        taskkill /f /im nanoswift.exe >nul 2>&1
-
-        timeout /t 2 >nul
-
-        goto retry_delete
-
+if exist "sing-box.exe" (
+    set /a RETRY_COUNT+=1
+    if !RETRY_COUNT! gtr 3 (
+        goto force_deploy
     )
-
+    taskkill /f /im sing-box.exe >nul 2>&1
+    taskkill /f /im nanoswift.exe >nul 2>&1
+    timeout /t 2 >nul
+    goto retry_delete
 )
 
 
