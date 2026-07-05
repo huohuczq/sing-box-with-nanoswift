@@ -95,7 +95,6 @@ set "FINAL_BIN_URL=!PROXY_PREFIX!!RAW_BASE_URL!/!BINARY_NAME!"
 set "FINAL_SHA_URL=!PROXY_PREFIX!!RAW_BASE_URL!/!SHA_NAME!"
 
 
-
 :: ==========================================
 
 :: Download core files via curl
