@@ -78,49 +78,49 @@ bash -c "$(curl -fsSL https://cdn.gh-proxy.org/https://raw.githubusercontent.com
 ## 📸 界面预览
 
 ### 🏠 Nanoswift 首页
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_index.png?raw=true" alt="Nanoswift 首页" width="100%">
 </a>
 
 ### 📋 分流规则管理
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_rules.png?raw=true" alt="分流规则管理" width="100%">
 </a>
 
 ### 🌐 节点池管理
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_nodes.png?raw=true" alt="节点池管理" width="100%">
 </a>
 
 ### 📦 节点组管理
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_group.png?raw=true" alt="节点组管理" width="100%">
 </a>
 
 ### 🪟 Windows 安装界面
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_windows.png?raw=true" alt="Windows 安装界面" width="100%">
 </a>
 
 ### 🪟 节点订阅界面
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nanoswift_sub.png?raw=true" alt="节点订阅界面" width="100%">
 </a>
 
 ### 🪟 新版本界面提示
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nano_new_version.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nano_new_version.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/nano_new_version.png?raw=true" alt="新版本界面提示" width="100%">
 </a>
 
 ### 🪟 安装在本来吃灰的小米AX3000T上
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T.png?raw=true" alt="小米AX3000T上" width="100%">
 </a>
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-1.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-1.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-1.png?raw=true" alt="小米AX3000T上" width="100%">
 </a>
 ### 小米AX3000T等256M小内存机器可以优化，并给个swap
-<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-2.png?raw=true" target="_blank">
+<a href="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-2.png target="_blank">
   <img src="https://github.com/is928joe-jpg/sing-box-with-nanoswift/blob/main/images/xiaomi-AX3000T-2.png?raw=true" alt="小米AX3000T上" width="100%">
 </a>
 ---
