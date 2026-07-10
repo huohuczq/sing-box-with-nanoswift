@@ -119,4 +119,5 @@ if exist "sing-box.exe" sing-box.exe
 if exist "nanoswift.exe" nanoswift.exe start nanoswift
 
 echo [SUCCESS] Upgrade completed.
+echo %date%
 exit /b 0
