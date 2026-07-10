@@ -223,8 +223,8 @@ EOF
     elif [ -d /run/systemd/system ] || pidof systemd &>/dev/null; then
         echo "   检测到系统使用 [systemd] (Ubuntu/Debian)..."
         
-        if [ ! -f "$INSTALL_DIR/config.json" ]; then
-            echo '{}' | sudo tee "$INSTALL_DIR/config.json" > /dev/null
+        if [ ! -f "$INSTALL_DIR/run/config.json" ]; then
+            echo '{}' | sudo tee "$INSTALL_DIR/run/config.json" > /dev/null
         fi
 
         cat <<EOF | sudo tee /etc/systemd/system/sing-box.service > /dev/null
@@ -236,7 +236,7 @@ After=network.target nss-lookup.target
 [Service]
 CapabilityBoundingSet=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
 AmbientCapabilities=CAP_NET_ADMIN CAP_NET_BIND_SERVICE CAP_NET_RAW
-ExecStart=$INSTALL_DIR/sing-box run -c $INSTALL_DIR/config.json
+ExecStart=$INSTALL_DIR/sing-box run -c $INSTALL_DIR/run/config.json
 Restart=on-failure
 RestartSec=10
 LimitNOFILE=infinity
@@ -253,8 +253,8 @@ EOF
     elif [ -f /sbin/openrc-run ] || [ -d /etc/init.d ]; then
         echo "   检测到系统使用 [OpenRC] (Alpine)..."
         
-        if [ ! -f "$INSTALL_DIR/config.json" ]; then
-            echo '{}' | sudo tee "$INSTALL_DIR/config.json" > /dev/null
+        if [ ! -f "$INSTALL_DIR/run/config.json" ]; then
+            echo '{}' | sudo tee "$INSTALL_DIR/run/config.json" > /dev/null
         fi
 
         cat <<EOF | sudo tee /etc/init.d/sing-box > /dev/null
@@ -262,7 +262,7 @@ EOF
 
 description="sing-box service"
 command="$INSTALL_DIR/sing-box"
-command_args="run -c $INSTALL_DIR/config.json"
+command_args="run -c $INSTALL_DIR/run/config.json"
 pidfile="/run/\${RC_SVCNAME}.pid"
 command_background="yes"
 
@@ -287,7 +287,7 @@ EOF
         echo "⚙️  OpenWrt 配置文件路径: $INSTALL_DIR/run/config.json"
         echo "🔧 你可以通过 uci 命令或修改 /etc/config/sing-box 管理服务"
     else
-        echo "⚙️  配置文件路径: $INSTALL_DIR/config.json"
+        echo "⚙️  配置文件路径: $INSTALL_DIR/run/config.json"
     fi
     echo "--------------------------------------------------"
 }
@@ -319,8 +319,13 @@ case "$PROXY_CHOICE" in
     *) PROXY_PREFIX="https://v4.gh-proxy.org/" ;;
 esac
 
-DATE_DIR="dist/$(date +%Y-%m-%d)"
+# 固定下载目录（幂等）
+DATE_DIR="/tmp/sing-box-dist"
+
+# 自动清理旧文件（避免堆积）
+rm -rf "$DATE_DIR" 2>/dev/null || true
 mkdir -p "$DATE_DIR"
+
 
 RAW_BASE_URL="https://raw.githubusercontent.com/is928joe-jpg/sing-box-with-nanoswift/refs/heads/main/2026-06-27"
 BINARY_NAME="sing-box-${platform}"
