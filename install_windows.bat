@@ -188,7 +188,7 @@ if !errorlevel! neq 0 (
 :: ============================================================
 echo.
 echo [INFO] Validating core...
-sing-box.exe version >nul 2>&1 || exit /b 1
+sing-box.exe version 
 
 :: ============================================================
 :: 启动 nanoswift
@@ -200,8 +200,7 @@ if exist "sing-box.exe" (
     sing-box.exe
 )    
 
-if exist "nanoswift.exe" (
-    
+if exist "nanoswift.exe" (    
     nanoswift.exe start nanoswift
     timeout /t 1 >nul
     tasklist /fi "imagename eq nanoswift.exe" | findstr /i "nanoswift.exe" >nul || exit /b 1
