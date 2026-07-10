@@ -113,29 +113,13 @@ if "!LOCAL_HASH!" neq "!EXPECTED_HASH!" exit /b 1
 echo [SUCCESS] SHA256 check passed.
 
 :: ============================================================
-:: 杀进程（修复逻辑）
+:: 杀进程
 :: ============================================================
 echo.
 echo [INFO] Terminating running processes...
 
-set /a PROCESS_POLL=0
-:poll_loop
-timeout /t 1 >nul
-
-tasklist /fi "imagename eq sing-box.exe" | findstr /i "sing-box.exe" >nul
-if !errorlevel! == 0 (
-    taskkill /f /im sing-box.exe >nul 2>&1
-    set /a PROCESS_POLL+=1
-)
-
-tasklist /fi "imagename eq nanoswift.exe" | findstr /i "nanoswift.exe" >nul
-if !errorlevel! == 0 (
-    taskkill /f /im nanoswift.exe >nul 2>&1
-    set /a PROCESS_POLL+=1
-)
-
-if !PROCESS_POLL! gtr 0 if !PROCESS_POLL! lss 6 goto poll_loop
-echo [INFO] Process termination verified.
+taskkill /f /im sing-box.exe >nul 2>&1
+taskkill /f /im nanoswift.exe >nul 2>&1
 
 :: ============================================================
 :: 切换目录
@@ -143,20 +127,21 @@ echo [INFO] Process termination verified.
 cd /d "!INSTALL_DIR!"
 
 :: ============================================================
-:: 清理逻辑（补丁已合并）
+:: 清理逻辑（目录无关、不会误删脚本）
 :: ============================================================
 echo [INFO] Purging target installation components...
 
-set "SCRIPT_NAME=%~nx0"
+set "SCRIPT_PATH=%~f0"
 
-:: 删除除 nanoswift.exe 和脚本自身以外的所有文件
+:: 删除除 nanoswift.exe 以外的所有文件（但不删除脚本自身）
 for %%F in (*) do (
     if /i not "%%F"=="nanoswift.exe" (
-    if /i not "%%F"=="%SCRIPT_NAME%" (
-        takeown /f "%%F" >nul 2>&1
-        icacls "%%F" /grant administrators:F >nul 2>&1
-        del /f /q "%%F" 2>nul
-    ))
+        if /i not "%CD%\%%F"=="%SCRIPT_PATH%" (
+            takeown /f "%%F" >nul 2>&1
+            icacls "%%F" /grant administrators:F >nul 2>&1
+            del /f /q "%%F" 2>nul
+        )
+    )
 )
 
 :: 删除除 profile / static / run 以外的所有目录
@@ -198,9 +183,9 @@ echo [INFO] Starting nanoswift...
 
 if exist "sing-box.exe" (
     sing-box.exe
-)    
+)
 
-if exist "nanoswift.exe" (    
+if exist "nanoswift.exe" (
     nanoswift.exe start nanoswift
     timeout /t 1 >nul
     tasklist /fi "imagename eq nanoswift.exe" | findstr /i "nanoswift.exe" >nul || exit /b 1
